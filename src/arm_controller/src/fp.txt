@@ -1,0 +1,46 @@
+#include <ros/ros.h>
+#include <sensor_msgs/JointState.h>
+#include <kdl/frames.hpp>
+#include <kdl/path_line.hpp>
+#include <kdl/rotational_interpolation_sa.hpp>
+#include <kdl/velocityprofile_trap.hpp>
+
+#define MAX_LIN_VEL 0.1
+#define MAX_LIN_ACC 0.1
+
+int main(int argc, char** argv) {
+    ros::init(argc, argv, "joint_state_publisher");
+    ros::NodeHandle nh;
+    ros::Publisher joint_state_pub = nh.advertise<sensor_msgs::JointState>("/joint_states", 10);
+    ros::Rate loop_rate(10); 
+    
+    float distance;
+
+    double hip = 0;
+    double shoulder = 0;
+    double elbow = 0;
+    double trajectory_duration = 1;
+
+    while(ros::ok()){
+        sensor_msgs::JointState joint_state;
+        joint_state.header.stamp = ros::Time::now();
+        joint_state.name.resize(3);
+        joint_state.position.resize(joint_state.name.size());
+        joint_state.name = {"hip", "shoulder", "elbow"};
+
+        joint_state.position = {hip, shoulder, elbow}; //in radians | hip, shoulder, elbow
+        joint_state_pub.publish(joint_state); 
+        printf("joint state published\n");
+
+        KDL::Vector start_pos = KDL::Vector(0, 0, 0);
+        KDL::Vector stop_pos = KDL::Vector(10, 10, 0);
+
+        // KDL::Path_Line* line= new KDL::Path_Line(KDL::Frame(start_pos), KDL::Frame(stop_pos), KDL::RotationalInterpolation_SingleAxis(), 1);
+        // KDL::VelocityProfile_Trap* line_vel = new KDL::VelocityProfile_Trap(MAX_LIN_VEL, MAX_LIN_ACC);
+        // line_vel->SetProfileDuration(0, line->PathLength(), trajectory_duration);
+        
+        ros::spinOnce();
+        loop_rate.sleep();
+    }
+    return 0;
+}

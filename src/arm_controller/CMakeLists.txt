@@ -7,6 +7,9 @@ project(arm_controller)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+set(Eigen3_DIR /usr/share/eigen3/cmake)
+link_directories(/usr/local/lib)
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
 )
@@ -14,20 +17,36 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(catkin REQUIRED COMPONENTS
   roscpp
 )
+
+find_package(Eigen3 REQUIRED)
+find_package(orocos_kdl REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS roscpp
 )
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+  ${orocos_kdl_INCLUDE_DIRS}
 )
 
 # add_executable(arm_controller src/main.cpp)
-add_executable(fp_controller src/fp.cpp)
+add_executable(arm_controller src/trajectory.cpp)
 
-target_link_libraries(fp_controller
+target_link_libraries(arm_controller
   ${catkin_LIBRARIES}
+  ${EIGEN3_LIBRARIES}
+  ${orocos_kdl_LIBRARIES}
+)
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+  ${catkin_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
+  ${orocos_kdl_INCLUDE_DIRS}
+        include
+        
 )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -95,10 +114,10 @@ target_link_libraries(fp_controller
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
+# include_directories(
+# # include
+#   ${catkin_INCLUDE_DIRS}
+# )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
